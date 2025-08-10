@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำร้องขอโอนย้ายสาขาวิชาต่างคณะ</title>
+</head>
+<body>
+    <h2>คำร้องขอโอนย้ายสาขาวิชาต่างคณะ</h2>
+    <p>สำหรับหลักสูตร 4 ปี และหลักสูตร 4 ปีเทียบเข้าเรียน (2ปี)</p>
+    
+    <form id="transferForm">
+        <h3>ข้อมูลพื้นฐาน</h3>
+        
+        <div>
+            <label>เขียนที่:</label>
+            <input type="text" id="location" name="location" value="มหาวิทยาลัยแม่โจ้" readonly>
+        </div>
+        
+        <div>
+            <label for="requestDate">วันที่:</label>
+            <input type="date" id="requestDate" name="requestDate" required>
+            <span id="requestDateError"></span>
+        </div>
+
+        <div>
+            <label>คำนำหน้าชื่อ:</label>
+            <input type="radio" id="mr" name="title" value="นาย" required>
+            <label for="mr">นาย</label>
+            <input type="radio" id="mrs" name="title" value="นาง">
+            <label for="mrs">นาง</label>
+            <input type="radio" id="miss" name="title" value="นางสาว">
+            <label for="miss">นางสาว</label>
+            <span id="titleError"></span>
+        </div>
+
+        <div>
+            <label for="fullName">ชื่อ-นามสกุล:</label>
+            <input type="text" id="fullName" name="fullName" required>
+            <span id="fullNameError"></span>
+        </div>
+
+        <div>
+            <label for="studentId">รหัสนักศึกษา:</label>
+            <input type="text" id="studentId" name="studentId" pattern="[0-9]{8}" required>
+            <span id="studentIdError"></span>
+        </div>
+
+        <div>
+            <label for="phone">โทรศัพท์มือถือ:</label>
+            <input type="tel" id="phone" name="phone" pattern="08[0-9]{8}" placeholder="08xxxxxxxx" required>
+            <span id="phoneError"></span>
+        </div>
+
+        <div>
+            <label for="system">ระบบ:</label>
+            <input type="text" id="system" name="system">
+        </div>
+
+        <div>
+            <label>หลักสูตร:</label>
+            <input type="radio" id="course4year" name="courseType" value="4ป" required>
+            <label for="course4year">4 ปี</label>
+            <input type="radio" id="course4yearTransfer" name="courseType" value="4ปเทียบเข้า">
+            <label for="course4yearTransfer">4 ปีเทียบเข้าเรียน (2ปี)</label>
+            <span id="courseTypeError"></span>
+        </div>
+
+        <div>
+            <label>ภาค:</label>
+            <input type="radio" id="regular" name="semester" value="ภาคปกติ" required>
+            <label for="regular">ภาคปกติ</label>
+            <input type="radio" id="special" name="semester" value="ภาคสมทบ">
+            <label for="special">ภาคสมทบ</label>
+            <span id="semesterError"></span>
+        </div>
+
+        <div>
+            <label for="currentMajor">สาขาวิชาปัจจุบัน:</label>
+            <input type="text" id="currentMajor" name="currentMajor" required>
+            <span id="currentMajorError"></span>
+        </div>
+
+        <div>
+            <label for="currentFaculty">คณะปัจจุบัน:</label>
+            <input type="text" id="currentFaculty" name="currentFaculty" required>
+            <span id="currentFacultyError"></span>
+        </div>
+
+        <div>
+            <label for="newMajor">สาขาวิชาที่ต้องการโอนย้าย:</label>
+            <input type="text" id="newMajor" name="newMajor" required>
+            <span id="newMajorError"></span>
+        </div>
+
+        <div>
+            <label for="newFaculty">คณะที่ต้องการโอนย้าย:</label>
+            <input type="text" id="newFaculty" name="newFaculty" required>
+            <span id="newFacultyError"></span>
+        </div>
+
+        <div>
+            <label for="reason">เหตุผลในการขอโอนย้าย:</label>
+            <textarea id="reason" name="reason" rows="3" required></textarea>
+            <span id="reasonError"></span>
+        </div>
+
+
+
+        <button type="submit">ตรวจสอบคำร้อง</button>
+        <button type="reset">ล้างข้อมูล</button>
+    </form>
+
+    <div id="validationResult" style="display: none;">
+        <h3>ผลการตรวจสอบ</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('transferForm');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            function validateForm() {
+                clearErrors();
+                let isValid = true;
+                
+                // Get form values
+                const courseType = document.querySelector('input[name="courseType"]:checked');
+                const fullName = document.getElementById('fullName').value.trim();
+                const studentId = document.getElementById('studentId').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const currentMajor = document.getElementById('currentMajor').value.trim();
+                const currentFaculty = document.getElementById('currentFaculty').value.trim();
+                const newMajor = document.getElementById('newMajor').value.trim();
+                const newFaculty = document.getElementById('newFaculty').value.trim();
+                const reason = document.getElementById('reason').value.trim();
+                const title = document.querySelector('input[name="title"]:checked');
+                const semester = document.querySelector('input[name="semester"]:checked');
+
+                // Basic validation
+                if (!title) {
+                    showError('titleError', 'กรุณาเลือกคำนำหน้าชื่อ');
+                    isValid = false;
+                }
+
+                if (!fullName) {
+                    showError('fullNameError', 'กรุณากรอกชื่อ-นามสกุล');
+                    isValid = false;
+                }
+
+                if (!studentId || !/^[0-9]{8}$/.test(studentId)) {
+                    showError('studentIdError', 'กรุณากรอกรหัสนักศึกษา 8 หลัก');
+                    isValid = false;
+                }
+
+                if (!phone || !/^08[0-9]{8}$/.test(phone)) {
+                    showError('phoneError', 'กรุณากรอกเบอร์โทรศัพท์ที่ขึ้นต้นด้วย 08 (10 หลัก)');
+                    isValid = false;
+                }
+
+                if (!courseType) {
+                    showError('courseTypeError', 'กรุณาเลือกหลักสูตร');
+                    isValid = false;
+                }
+
+                if (!semester) {
+                    showError('semesterError', 'กรุณาเลือกภาค');
+                    isValid = false;
+                }
+
+                if (!currentMajor) {
+                    showError('currentMajorError', 'กรุณากรอกสาขาวิชาปัจจุบัน');
+                    isValid = false;
+                }
+
+                if (!currentFaculty) {
+                    showError('currentFacultyError', 'กรุณากรอกคณะปัจจุบัน');
+                    isValid = false;
+                }
+
+                if (!newMajor) {
+                    showError('newMajorError', 'กรุณากรอกสาขาวิชาที่ต้องการโอนย้าย');
+                    isValid = false;
+                }
+
+                if (!newFaculty) {
+                    showError('newFacultyError', 'กรุณากรอกคณะที่ต้องการโอนย้าย');
+                    isValid = false;
+                }
+
+                if (!reason) {
+                    showError('reasonError', 'กรุณากรอกเหตุผลในการขอโอนย้าย');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    displayResults();
+                }
+            }
+
+            function displayResults() {
+                const courseType = document.querySelector('input[name="courseType"]:checked').value;
+                const title = document.querySelector('input[name="title"]:checked').value;
+                const fullName = document.getElementById('fullName').value;
+                const studentId = document.getElementById('studentId').value;
+                const currentMajor = document.getElementById('currentMajor').value;
+                const currentFaculty = document.getElementById('currentFaculty').value;
+                const newMajor = document.getElementById('newMajor').value;
+                const newFaculty = document.getElementById('newFaculty').value;
+                const semestersStudied = document.getElementById('semestersStudied').value;
+                const totalCredits = document.getElementById('totalCredits').value;
+                const gpa = document.getElementById('gpa').value;
+
+                let minSemesterRequirement = '';
+                let minStayRequirement = '';
+                
+                if (courseType === '4ปเทียบเข้า') {
+                    minSemesterRequirement = 'ต้องมีระยะเวลาศึกษาอยู่ในสาขาวิชาที่โอนย้ายเข้า ไม่น้อยกว่า 2 ภาคการศึกษาปกติ';
+                } else {
+                    minSemesterRequirement = 'ต้องมีระยะเวลาศึกษาอยู่ในสาขาวิชาที่โอนย้ายเข้า ไม่น้อยกว่า 4 ภาคการศึกษาปกติ';
+                }
+
+                const resultContent = document.getElementById('resultContent');
+                resultContent.innerHTML = `
+                    <h4>✅ คำร้องผ่านการตรวจสอบแล้ว</h4>
+                    <p><strong>ชื่อ:</strong> ${title}${fullName}</p>
+                    <p><strong>รหัสนักศึกษา:</strong> ${studentId}</p>
+                    <p><strong>หลักสูตร:</strong> ${courseType}</p>
+                    <p><strong>จาก:</strong> สาขา${currentMajor} คณะ${currentFaculty}</p>
+                    <p><strong>ไป:</strong> สาขา${newMajor} คณะ${newFaculty}</p>
+                    <p><strong>ภาคการศึกษาที่ศึกษา:</strong> ${semestersStudied} ภาค</p>
+                    <p><strong>หน่วยกิตสะสม:</strong> ${totalCredits} หน่วยกิต</p>
+                    <p><strong>เกรดเฉลี่ย:</strong> ${gpa}</p>
+                    
+                    <h4>หมายเหตุสำคัญ:</h4>
+                    <ul>
+                        <li>การโอนย้ายสาขาวิชาจะกระทำได้เพียงครั้งเดียว</li>
+                        <li>ต้องยื่นคำร้องก่อนเปิดภาคเรียนที่ขอโอนย้ายไม่น้อยกว่า 4 สัปดาห์</li>
+                        <li>${minSemesterRequirement}</li>
+                        <li>ค่าธรรมเนียม: 500 บาท</li>
+                    </ul>
+                `;
+                
+                document.getElementById('validationResult').style.display = 'block';
+                document.getElementById('validationResult').scrollIntoView();
+            }
+
+            function showError(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                errorElement.textContent = message;
+                errorElement.style.color = 'red';
+                errorElement.style.fontSize = '14px';
+            }
+
+            function clearErrors() {
+                const errorElements = document.querySelectorAll('[id$="Error"]');
+                errorElements.forEach(element => {
+                    element.textContent = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

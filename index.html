@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ฟอร์มจองตั๋วกิจกรรม</title>
+</head>
+<body>
+  <h1>ฟอร์มจองตั๋วกิจกรรม (Event Booking)</h1>
+  <form id="bookingForm">
+    <label>ชื่อ-นามสกุล:
+      <input type="text" id="fullName" required>
+    </label><br><br>
+
+    <label>เบอร์โทรศัพท์:
+      <input type="text" id="phone" required>
+    </label><br><br>
+
+    <label>เลือกประเภทตั๋ว:
+      <select id="ticketType">
+        <option value="ปกติ">ปกติ</option>
+        <option value="VIP">VIP</option>
+        <option value="Premium">Premium</option>
+      </select>
+    </label><br><br>
+
+    <label>จำนวนตั๋ว:
+      <input type="number" id="ticketCount" required>
+    </label><br><br>
+
+    <button type="submit">จองตั๋ว</button>
+  </form>
+
+  <p id="message" style="color: red;"></p>
+
+  <script>
+    document.getElementById("bookingForm").addEventListener("submit", function (e) {
+      e.preventDefault(); // ป้องกันการ reload หน้า
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const ticketType = document.getElementById("ticketType").value;
+      const ticketCount = parseInt(document.getElementById("ticketCount").value, 10);
+      const message = document.getElementById("message");
+
+      // เคลียร์ข้อความเก่า
+      message.textContent = "";
+
+      // ✅ Validation
+      if (fullName.split(" ").length < 2) {
+        message.textContent = "กรุณากรอกชื่อ-นามสกุล อย่างน้อย 2 คำ";
+        return;
+      }
+
+      const phoneRegex = /^0\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        message.textContent = "เบอร์โทรศัพท์ไม่ถูกต้อง ต้องมี 10 หลักและขึ้นต้นด้วย 0";
+        return;
+      }
+
+      if (isNaN(ticketCount) || ticketCount < 1 || ticketCount > 5) {
+        message.textContent = "จำนวนตั๋วต้องอยู่ระหว่าง 1 ถึง 5";
+        return;
+      }
+
+      if ((ticketType === "VIP" || ticketType === "Premium") && ticketCount > 2) {
+        message.textContent = "ประเภท VIP หรือ Premium จองได้ไม่เกิน 2 ใบ";
+        return;
+      }
+
+      // ✅ ถ้าผ่านทั้งหมด
+      alert(`จองตั๋วสำเร็จ จำนวน: ${ticketCount} ประเภท: ${ticketType}`);
+    });
+  </script>
+</body>
+</html>
